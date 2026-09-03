@@ -6,13 +6,11 @@ namespace SubwayRouteFinder
     {
         public static void Main()
         {
-            Console.Write("출발 역을 입력해주세요 : ");
-
-            string startStation = Console.ReadLine();
-
-            Console.Write("도착 역을 입력해주세요 : ");
-
-            string endStation = Console.ReadLine();
+            //그래프 테스트 -> 이웃역 까지
+            var graph = new SubwayGraph();
+            Console.WriteLine(graph.GetAllStationNames().Count);
+            foreach (var e in graph.GetEdges("시청"))
+                Console.WriteLine($"{e.Station} {e.Time}");
         }
     }
 }
