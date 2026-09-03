@@ -6,11 +6,16 @@ namespace SubwayRouteFinder
     {
         public static void Main()
         {
-            //그래프 테스트 -> 이웃역 까지
             var graph = new SubwayGraph();
-            Console.WriteLine(graph.GetAllStationNames().Count);
-            foreach (var e in graph.GetEdges("시청"))
-                Console.WriteLine($"{e.Station} {e.Time}");
+            void TestPath(string start, string end)
+            {
+                var result = SubwayPathFinder.FindShortestPath(graph, start, end);
+                Console.WriteLine($"{result.GetRouteString()} | {result.GetFormattedTime()}");
+            }
+
+            TestPath("홍대입구", "경복궁");
+            TestPath("망원", "마장");
+            TestPath("용산", "청량리");
         }
     }
 }
