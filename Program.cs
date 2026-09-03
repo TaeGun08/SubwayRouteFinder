@@ -2,9 +2,9 @@ using System;
 
 namespace SubwayRouteFinder
 {
-    class Program
+    public class Program
     {
-        static void Main()
+        public static void Main()
         {
             Console.Write("출발 역을 입력해주세요 : ");
 

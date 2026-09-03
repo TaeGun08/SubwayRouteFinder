@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SubwayRouteFinder")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0ecb30eebfd1565cfdf16cc682f574ebed9eaf2e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+89b1f85b7cd38fe3d92964033314fa5999dd3a95")]
 [assembly: System.Reflection.AssemblyProductAttribute("SubwayRouteFinder")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SubwayRouteFinder")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
