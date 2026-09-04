@@ -47,19 +47,19 @@ namespace SubwayRouteFinder
         {
             foreach (var segment in SubwayData.Segments)
             {
-                var a = new StationNode(segment.From, segment.Line);
-                var b = new StationNode(segment.To, segment.Line);
+                var fromNode = new StationNode(segment.From, segment.Line);
+                var toNode = new StationNode(segment.To, segment.Line);
 
-                AddEdge(a, b, segment.Time, isTransfer: false);
-                AddEdge(b, a, segment.Time, isTransfer: false);
+                AddEdge(fromNode, toNode, segment.Time, isTransfer: false);
+                AddEdge(toNode, fromNode, segment.Time, isTransfer: false);
 
                 RegisterLine(segment.From, segment.Line);
                 RegisterLine(segment.To, segment.Line);
             }
 
-            foreach (var pair in _stationLines)
+            foreach (var stationEntry in _stationLines)
             {
-                var lines = pair.Value.ToList();
+                var lines = stationEntry.Value.ToList();
                 
                 if (lines.Count < 2) continue;
 
@@ -67,8 +67,8 @@ namespace SubwayRouteFinder
                 {
                     for (int j = i + 1; j < lines.Count; j++)
                     {
-                        var nodeA = new StationNode(pair.Key, lines[i]);
-                        var nodeB = new StationNode(pair.Key, lines[j]);
+                        var nodeA = new StationNode(stationEntry.Key, lines[i]);
+                        var nodeB = new StationNode(stationEntry.Key, lines[j]);
 
                         AddEdge(nodeA, nodeB, SubwayData.TransferPenaltySeconds, isTransfer: true);
                         AddEdge(nodeB, nodeA, SubwayData.TransferPenaltySeconds, isTransfer: true);

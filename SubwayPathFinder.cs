@@ -110,12 +110,12 @@ namespace SubwayRouteFinder
             StationNode? bestEnd = null;
             int bestDist = int.MaxValue;
 
-            foreach (var kv in dist)
+            foreach (var distEntry in dist)
             {
-                if (kv.Key.Station == end && kv.Value < bestDist)
+                if (distEntry.Key.Station == end && distEntry.Value < bestDist)
                 {
-                    bestDist = kv.Value;
-                    bestEnd = kv.Key;
+                    bestDist = distEntry.Value;
+                    bestEnd = distEntry.Key;
                 }
             }
 
