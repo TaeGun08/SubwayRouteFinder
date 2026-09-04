@@ -21,8 +21,14 @@ namespace SubwayRouteFinder
 
             var result = SubwayPathFinder.FindShortestPath(_graph, start, end);
 
+            if (result.Steps.Count == 0)
+            {
+                Console.WriteLine("경로를 찾을 수 없습니다.");
+                return;
+            }
+
             Console.WriteLine();
-            Console.WriteLine($"[탐색 결과] {start} -> {end}");
+            Console.WriteLine($"<탐색 결과> {start} -> {end}");
             Console.WriteLine($"이동 경로 : {result.GetRouteString()}");
             Console.WriteLine($"총 소요 시간 : {result.GetFormattedTime()}");
         }
@@ -43,19 +49,19 @@ namespace SubwayRouteFinder
 
             if (!_graph.StationExists(start))
             {
-                Console.WriteLine($"'{start}'은(는) 존재하지 않는 역입니다. 다시 입력해주세요.");
+                Console.WriteLine($"'{start}'은(는) 존재하지 않는 역입니다.");
                 return false;
             }
 
             if (!_graph.StationExists(end))
             {
-                Console.WriteLine($"'{end}'은(는) 존재하지 않는 역입니다. 다시 입력해주세요.");
+                Console.WriteLine($"'{end}'은(는) 존재하지 않는 역입니다.");
                 return false;
             }
 
             if (start == end)
             {
-                Console.WriteLine("출발역과 도착역이 같습니다. 다시 입력해주세요.");
+                Console.WriteLine("출발역과 도착역이 같습니다.");
                 return false;
             }
 

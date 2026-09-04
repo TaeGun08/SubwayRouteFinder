@@ -16,7 +16,6 @@ namespace SubwayRouteFinder
 
     public class PathResult
     {
-        public bool Success;
         public List<RouteStep> Steps = new();
         public int TotalSeconds;
         public int TransferCount;
@@ -35,7 +34,7 @@ namespace SubwayRouteFinder
 
             for (int i = 0; i < Steps.Count; i++)
             {
-                if (i > 0) sb.Append("->");
+                if (i > 0) sb.Append(" -> ");
 
                 sb.Append(Steps[i].Station);
 
@@ -55,39 +54,25 @@ namespace SubwayRouteFinder
             var startNodes = graph.GetLines(start).Select(line => new StationNode(start, line)).ToList();
             bool endExists = graph.GetLines(end).Count > 0;
 
-            if (startNodes.Count == 0 || !endExists)
-            {
-                result.Success = false;
-                return result;
-            }
+            if (startNodes.Count == 0 || !endExists) return result;
+
 
             var dist = new Dictionary<StationNode, int>();
             var prev = new Dictionary<StationNode, StationNode?>();
+            var arrivedViaTransfer = new Dictionary<StationNode, bool>();
             var visited = new HashSet<StationNode>();
-            var frontier = new List<StationNode>();
+            var nodeQueue = new PriorityQueue<StationNode, int>();
 
             foreach (var node in startNodes)
             {
                 dist[node] = 0;
                 prev[node] = null;
-                frontier.Add(node);
+                nodeQueue.Enqueue(node, 0);
             }
 
-            while (frontier.Count > 0)
+            while (nodeQueue.Count > 0)
             {
-                int bestIndex = 0;
-                var current = frontier[0];
-
-                for (int i = 1; i < frontier.Count; i++)
-                {
-                    if (dist[frontier[i]] < dist[current])
-                    {
-                        current = frontier[i];
-                        bestIndex = i;
-                    }
-                }
-
-                frontier.RemoveAt(bestIndex);
+                var current = nodeQueue.Dequeue();
 
                 if (visited.Contains(current)) continue;
                 visited.Add(current);
@@ -102,7 +87,8 @@ namespace SubwayRouteFinder
                     {
                         dist[edge.To] = newDist;
                         prev[edge.To] = current;
-                        frontier.Add(edge.To);
+                        arrivedViaTransfer[edge.To] = edge.IsTransfer;
+                        nodeQueue.Enqueue(edge.To, newDist);
                     }
                 }
             }
@@ -110,20 +96,16 @@ namespace SubwayRouteFinder
             StationNode? bestEnd = null;
             int bestDist = int.MaxValue;
 
-            foreach (var distEntry in dist)
+            foreach (var kv in dist)
             {
-                if (distEntry.Key.Station == end && distEntry.Value < bestDist)
+                if (kv.Key.Station == end && kv.Value < bestDist)
                 {
-                    bestDist = distEntry.Value;
-                    bestEnd = distEntry.Key;
+                    bestDist = kv.Value;
+                    bestEnd = kv.Key;
                 }
             }
 
-            if (bestEnd == null)
-            {
-                result.Success = false;
-                return result;
-            }
+            if (bestEnd == null) return result;
 
             var nodePath = new List<StationNode>();
             StationNode? currentNode = bestEnd;
@@ -141,16 +123,18 @@ namespace SubwayRouteFinder
 
             foreach (var node in nodePath)
             {
-                if (steps.Count > 0 && steps[steps.Count - 1].Station == node.Station)
+                bool cameByTransfer = arrivedViaTransfer.TryGetValue(node, out bool wasTransfer) && wasTransfer;
+
+                if (steps.Count > 0 && cameByTransfer)
                 {
                     steps[steps.Count - 1].IsTransferHere = true;
                     transferCount++;
                     continue;
                 }
+
                 steps.Add(new RouteStep(node.Station, false));
             }
 
-            result.Success = true;
             result.Steps = steps;
             result.TotalSeconds = bestDist;
             result.TransferCount = transferCount;
