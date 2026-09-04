@@ -23,7 +23,7 @@ namespace SubwayRouteFinder
     {
         public const int TransferPenaltySeconds = 180;
 
-        public static readonly List<SubwaySegment> Segments = new List<SubwaySegment>
+        public static readonly List<SubwaySegment> Segments = new()
         {
             // 1호선 라인
             new SubwaySegment("용산", "남영", 1, 110),

@@ -1,5 +1,3 @@
-using System;
-
 namespace SubwayRouteFinder
 {
     public class Program

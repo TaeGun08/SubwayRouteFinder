@@ -1,49 +1,119 @@
 namespace SubwayRouteFinder
 {
-    public readonly struct Edge
+    public readonly struct StationNode
     {
         public readonly string Station;
-        public readonly int Time;
+        public readonly int Line;
 
-        public Edge(string station, int time)
+        public StationNode(string station, int line)
         {
             Station = station;
-            Time = time;
+            Line = line;
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is StationNode other
+                && Station == other.Station
+                && Line == other.Line;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Station, Line);
         }
     }
+
+    public readonly struct Edge
+    {
+        public readonly StationNode To;
+        public readonly int Time;
+        public readonly bool IsTransfer;
+
+        public Edge(StationNode to, int time, bool isTransfer)
+        {
+            To = to;
+            Time = time;
+            IsTransfer = isTransfer;
+        }
+    }
+
     public class SubwayGraph
     {
-        private readonly Dictionary<string, List<Edge>> _adjacency = new Dictionary<string, List<Edge>>();
+        private readonly Dictionary<StationNode, List<Edge>> _adjacency = new();
+        private readonly Dictionary<string, HashSet<int>> _stationLines = new();
 
         public SubwayGraph()
         {
             foreach (var segment in SubwayData.Segments)
             {
-                AddEdge(segment.From, segment.To, segment.Time);
-                AddEdge(segment.To, segment.From, segment.Time);
+                var a = new StationNode(segment.From, segment.Line);
+                var b = new StationNode(segment.To, segment.Line);
+
+                AddEdge(a, b, segment.Time, isTransfer: false);
+                AddEdge(b, a, segment.Time, isTransfer: false);
+
+                RegisterLine(segment.From, segment.Line);
+                RegisterLine(segment.To, segment.Line);
+            }
+
+            foreach (var pair in _stationLines)
+            {
+                var lines = pair.Value.ToList();
+                
+                if (lines.Count < 2) continue;
+
+                for (int i = 0; i < lines.Count; i++)
+                {
+                    for (int j = i + 1; j < lines.Count; j++)
+                    {
+                        var nodeA = new StationNode(pair.Key, lines[i]);
+                        var nodeB = new StationNode(pair.Key, lines[j]);
+
+                        AddEdge(nodeA, nodeB, SubwayData.TransferPenaltySeconds, isTransfer: true);
+                        AddEdge(nodeB, nodeA, SubwayData.TransferPenaltySeconds, isTransfer: true);
+                    }
+                }
             }
         }
 
-        private void AddEdge(string from, string to, int time)
+        private void AddEdge(StationNode from, StationNode to, int time, bool isTransfer)
         {
             if (!_adjacency.TryGetValue(from, out var edges))
             {
                 edges = new List<Edge>();
                 _adjacency[from] = edges;
             }
-            edges.Add(new Edge(to, time));
+
+            edges.Add(new Edge(to, time, isTransfer));
         }
 
-        public bool StationExists(string station) => _adjacency.ContainsKey(station);
-
-        public IReadOnlyList<Edge> GetEdges(string station)
+        private void RegisterLine(string station, int line)
         {
-            return _adjacency.TryGetValue(station, out var edges) ? edges : Array.Empty<Edge>();
+            if (!_stationLines.TryGetValue(station, out var lines))
+            {
+                lines = new HashSet<int>();
+                _stationLines[station] = lines;
+            }
+
+            lines.Add(line);
+        }
+
+        public bool StationExists(string station) => _stationLines.ContainsKey(station);
+
+        public IReadOnlyList<Edge> GetEdges(StationNode node)
+        {
+            return _adjacency.TryGetValue(node, out var edges) ? edges : Array.Empty<Edge>();
+        }
+
+        public List<int> GetLines(string station)
+        {
+            return _stationLines.TryGetValue(station, out var lines) ? lines.OrderBy(l => l).ToList() : new();
         }
 
         public List<string> GetAllStationNames()
         {
-            return _adjacency.Keys.OrderBy(s => s, StringComparer.Ordinal).ToList();
+            return _stationLines.Keys.OrderBy(s => s, StringComparer.Ordinal).ToList();
         }
     }
 }

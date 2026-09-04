@@ -1,10 +1,8 @@
-using System;
-
 namespace SubwayRouteFinder
 {
     public class Subway
     {
-        private readonly SubwayGraph _graph = new SubwayGraph();
+        private readonly SubwayGraph _graph = new();
 
         public void Run()
         {
